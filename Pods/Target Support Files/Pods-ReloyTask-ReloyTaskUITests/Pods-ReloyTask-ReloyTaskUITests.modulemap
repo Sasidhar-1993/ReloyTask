@@ -1,0 +1,6 @@
+framework module Pods_ReloyTask_ReloyTaskUITests {
+  umbrella header "Pods-ReloyTask-ReloyTaskUITests-umbrella.h"
+
+  export *
+  module * { export * }
+}

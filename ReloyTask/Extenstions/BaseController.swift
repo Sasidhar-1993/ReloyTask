@@ -13,14 +13,14 @@ class BaseViewController: UIViewController {
     let actInd: UIActivityIndicatorView = UIActivityIndicatorView()
     
     override func viewDidLoad() {
+//      UISearchController
         navigationItem.searchController = searchController
         searchController.searchBar.placeholder = "search photos"
         searchController.hidesNavigationBarDuringPresentation = false
         
     }
-    
+//      ActivityIndicator
     func startActivityIndicator() {
-        
 //        actInd.frame = CGRect(x: 0.0, y: 0.0, width: 0.0, height: 0.0)
         actInd.color = .black
         actInd.center = view.center

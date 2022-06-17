@@ -15,7 +15,7 @@ class SearchCvCell: UICollectionViewCell {
     
     var hit : Hit? = nil {
         didSet{
-            imgView.backgroundColor = .red
+            imgView.backgroundColor = .white
             imgView.layer.cornerRadius = 5.0
             
             let urlStr = hit?.previewURL ?? ""

@@ -10,28 +10,26 @@ import UIKit
 class BaseViewController: UIViewController {
     
     let searchController = UISearchController()
-    let actInd: UIActivityIndicatorView = UIActivityIndicatorView()
+    let actIndicator: UIActivityIndicatorView = UIActivityIndicatorView()
     
     override func viewDidLoad() {
-//      UISearchController
+        // UISearchController
         navigationItem.searchController = searchController
         searchController.searchBar.placeholder = "search photos"
         searchController.hidesNavigationBarDuringPresentation = false
-        
+        // Activity Indicator
+        actIndicator.center = view.center
+        actIndicator.style = UIActivityIndicatorView.Style.large
+        view.addSubview(actIndicator)
+
     }
-//      ActivityIndicator
     func startActivityIndicator() {
-//        actInd.frame = CGRect(x: 0.0, y: 0.0, width: 0.0, height: 0.0)
-        actInd.color = .black
-        actInd.center = view.center
-        actInd.style =
-        UIActivityIndicatorView.Style.large
-        view.addSubview(actInd)
-        actInd.startAnimating()
+        actIndicator.startAnimating()
         
     }
     func stopActivityIndicator() {
-        view.addSubview(actInd)
-        actInd.stopAnimating()
+        DispatchQueue.main.async {
+            self.actIndicator.stopAnimating()
+        }
     }
 }

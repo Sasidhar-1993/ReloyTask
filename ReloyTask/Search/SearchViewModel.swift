@@ -9,20 +9,30 @@ import Foundation
 
 typealias responseClosure = (Bool, Error?) -> Void
 
-class SearchViewModel {
-    
+protocol PhotosDetailService {
+    func fetchPhotos(searchText: String, complitionHandler: @escaping responseClosure)
+}
+
+class SearchViewModel: PhotosDetailService {
+    let photosDetailUrl = "https://pixabay.com/api/?key=27723096-c7018f4a6b827cace9fc6d737&q=%@&image_type=photo&pretty=true"
     var searchModel : SearchModel?
-    
-    func fetchImages(searchText: String ,complitionHandler: @escaping responseClosure) {
-        
-        let urlString = "https://pixabay.com/api/?key=27723096-c7018f4a6b827cace9fc6d737&q=\(searchText)&image_type=photo&pretty=true"
-        guard let url = URL(string: urlString) else { return }
+    var dataTask: URLSessionDataTask?
+    let defaultSession = URLSession(configuration: .default)
+
+    func fetchPhotos(searchText: String ,complitionHandler: @escaping responseClosure) {
+        dataTask?.cancel()
+
+        guard let url = URL(string: String(format: photosDetailUrl, "\(searchText)") ) else {
+            return
+        }
         
         var request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalAndRemoteCacheData, timeoutInterval: 60)
-        
         request.httpMethod = "GET"
         
-        let dataTask = URLSession.shared.dataTask(with: request) { data, response, error in
+        dataTask = defaultSession.dataTask(with: request) { [weak self] data, response, error in
+            defer {
+                self?.dataTask = nil
+            }
             guard error  == nil else {
                 complitionHandler(false, error)
                 return
@@ -34,13 +44,13 @@ class SearchViewModel {
             }
             
             do {
-                self.searchModel = try JSONDecoder().decode(SearchModel.self, from: result)
+                self?.searchModel = try JSONDecoder().decode(SearchModel.self, from: result)
                 complitionHandler(true, nil)
             }catch (let error){
                 complitionHandler(false, error)
             }
         }
-        dataTask.resume()
+        dataTask?.resume()
     }
     
     func updateSelectedPostion(selectedPosition: Int) {
@@ -52,5 +62,10 @@ class SearchViewModel {
         searchModel?.hits?[selectedPosition].isSelected = true
         
     }
+    
+    var numberOfItemsInSection : Int {
+        return searchModel?.hits?.count ?? 0
+    }
+    
 }
 

@@ -15,11 +15,17 @@ class SearchViewController : BaseViewController {
     let searchViewModel = SearchViewModel()
     let spacing:CGFloat = 5.0
 
+    // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         
         title = "Photos"
-        self.searchController.searchBar.delegate = self
+        configUI()
+    }
+    
+    //MARK: - Privates
+    private func configUI() {
+        searchController.searchBar.delegate = self
         myCollectionView.delegate = self
         myCollectionView.dataSource = self
         
@@ -28,28 +34,28 @@ class SearchViewController : BaseViewController {
         layout.minimumLineSpacing = spacing
         layout.minimumInteritemSpacing = spacing
         self.myCollectionView?.collectionViewLayout = layout
-        
-        
     }
-    func callService (searchT: String) {
-        
+    
+    private func callService (searchT: String) {
+                
         if Reachability.isConnectedToNetwork(){
             startActivityIndicator()
-            searchViewModel.fetchImages(searchText: searchT) {[weak self] (isSuccess, error) in
-                DispatchQueue.main.async {
-                    self?.stopActivityIndicator()
-                }
+            searchViewModel.fetchPhotos(searchText: searchT) {[weak self] (isSuccess, error) in
+                            
+                guard let strongSelf = self else { return }
+                
+                strongSelf.stopActivityIndicator()
                 if error != nil {
-                    self?.showAlert(title: AlertMessages.error, message: error?.localizedDescription ?? AlertMessages.somethingWentWrong)
+                    strongSelf.showAlert(title: AlertMessages.error, message: error?.localizedDescription ?? AlertMessages.somethingWentWrong)
                 } else{
                     
-                    if let result = self?.searchViewModel.searchModel {
+                    if let result = strongSelf.searchViewModel.searchModel {
                         if result.hits?.count == 0 {
-                            self?.showAlert(title: AlertMessages.noDataAvailable, message: "")
+                            strongSelf.showAlert(title: AlertMessages.noDataAvailable, message: "")
                             
                         }else{
                             DispatchQueue.main.async {
-                                self?.myCollectionView.reloadData()
+                                strongSelf.myCollectionView.reloadData()
                             }
                         }
                     }
@@ -64,7 +70,7 @@ class SearchViewController : BaseViewController {
     
 }
 extension SearchViewController:  UISearchBarDelegate {
-    
+    // MARK: - UISearchBarDelegate
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let searchText = searchController.searchBar.text else {return}
         print(searchText)
@@ -74,11 +80,10 @@ extension SearchViewController:  UISearchBarDelegate {
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText == "" {
         
+        if searchText.isEmpty {
             searchViewModel.searchModel?.reset()
             myCollectionView.reloadData()
-            print("search canceked")
         }
     }
     
@@ -95,7 +100,7 @@ extension SearchViewController : UICollectionViewDelegate, UICollectionViewDataS
 {
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return searchViewModel.searchModel?.hits?.count ?? 0
+        return searchViewModel.numberOfItemsInSection
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
